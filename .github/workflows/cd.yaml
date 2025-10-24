@@ -1,0 +1,70 @@
+---
+name: 02 Azure Landing Zones Continuous Delivery
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_what_if:
+        description: 'Skip What If Check?'
+        type: boolean
+        default: false
+      management_groups:
+        description: 'Run Steps: Management Groups'
+        type: boolean
+        default: true
+      logging_and_sentinel:
+        description: 'Run Steps: Logging and Sentinel'
+        type: boolean
+        default: true
+      policy_definitions:
+        description: 'Run Steps: Policy Definitions'
+        type: boolean
+        default: true
+      role_definitions:
+        description: 'Run Steps: Role Definitions'
+        type: boolean
+        default: true
+      policy_assignments:
+        description: 'Run Steps: Policy Assignments'
+        type: boolean
+        default: true
+      management_group_diagnostic_settings:
+        description: 'Run Steps: Management Group Diagnostic Settings'
+        type: boolean
+        default: true
+      subscription_placement:
+        description: 'Run Steps: Subscription Placement'
+        type: boolean
+        default: true
+      connectivity:
+        description: 'Run Steps: Connectivity'
+        type: boolean
+        default: true
+      destroy:
+        description: '[DANGER!] Destroy? [DANGER!]'
+        type: boolean
+        default: false
+
+jobs:
+  plan_and_apply:
+    uses: waza-labs/alz-mgmt-templates/.github/workflows/cd-template.yaml@main
+    name: 'CD'
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      skip_what_if: ${{ github.event_name != 'workflow_dispatch' && false || inputs.skip_what_if == true }}
+      destroy: ${{ github.event_name != 'workflow_dispatch' && false || inputs.destroy == true }}
+      management_groups: ${{ github.event_name != 'workflow_dispatch' && true || inputs.management_groups == true }}
+      logging_and_sentinel_resource_group: ${{ github.event_name != 'workflow_dispatch' && true || inputs.logging_and_sentinel == true }}
+      logging_and_sentinel: ${{ github.event_name != 'workflow_dispatch' && true || inputs.logging_and_sentinel == true }}
+      custom_policy_definitions: ${{ github.event_name != 'workflow_dispatch' && true || inputs.policy_definitions == true }}
+      custom_role_definitions: ${{ github.event_name != 'workflow_dispatch' && true || inputs.role_definitions == true }}
+      management_group_diagnostic_settings: ${{ github.event_name != 'workflow_dispatch' && true || inputs.management_group_diagnostic_settings == true }}
+      policy_assignments: ${{ github.event_name != 'workflow_dispatch' && true || inputs.policy_assignments == true }}
+      workload_specific_policy_assignments: ${{ github.event_name != 'workflow_dispatch' && true || inputs.policy_assignments == true }}
+      subscription_placement: ${{ github.event_name != 'workflow_dispatch' && true || inputs.subscription_placement == true }}
+      connectivity_resource_group: ${{ github.event_name != 'workflow_dispatch' && true || inputs.connectivity == true }}
+      hub_and_spoke: ${{ github.event_name != 'workflow_dispatch' && true || inputs.connectivity == true }}
